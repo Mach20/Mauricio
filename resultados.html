@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estilos.css">
+    <title>Resultados de Búsqueda</title>
+    <style>
+        /* Estilos adicionales para las imágenes */
+        .movie-poster {
+        width: 200px;               /* Tamaño fijo */
+        height: 300px;              /* Tamaño fijo */
+        object-fit: cover;          /* Mantiene la proporción */
+        cursor: pointer;            /* Cambia el cursor */
+        margin: 10px;
+    }
+        .movies-container {
+        display: flex;               /* Usa flexbox para alinear las imágenes */
+        flex-wrap: wrap;            /* Permite que las imágenes se ajusten a la línea */
+        justify-content: auto;     /* Centra las imágenes en el contenedor */
+        gap: 10px;                  /* Espacio entre las imágenes */
+    }
+        
+        .video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .video-container video,
+        .video-container iframe {
+            width: 80%; /* Ancho relativo */
+            height: calc(80% * 9 / 16); /* Mantiene la proporción 16:9 */
+            display: none; /* Oculto por defecto */
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        body {
+            color: white;
+            background-color: black;
+        }
+        
+        :root {
+            --rojo: #E50914;
+            --fondo: #141414;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--fondo);
+            font-family: 'Open Sans', sans-serif;
+            color: white;
+        }
+
+        .contenedor {
+            width: 90%;
+            margin: auto;
+        }
+
+        header {
+            padding: 30px 0;
+        }
+
+        header .contenedor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logotipo {
+            font-family: 'Bebas Neue', cursive;
+            color: var(--rojo);
+            font-size: 40px;
+        }
+
+        header nav {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        header nav a {
+            color: #AAA;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        header nav a:hover,
+        header nav a.activo {
+            color: #FFF;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            width: 300px;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: var(--rojo);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-container button:hover {
+            background: #FF3D3D; /* Color más claro al pasar el mouse */
+        }
+
+        /* Media Queries */
+        @media screen and (min-width: 1200px) {
+            .movie-poster {
+                width: 12vw; /* Ajustar tamaño de los posters en pantallas grandes */
+                height: auto; /* Mantener proporción */
+            }
+
+            .video-container video,
+            .video-container iframe {
+                width: 70vw; /* Ajustar el tamaño del video en pantallas grandes */
+                height: calc(70vw * 9 / 16); /* Mantener la proporción 16:9 */
+            }
+
+            .logotipo {
+                font-size: 3vw; /* Ajustar el tamaño del logotipo */
+            }
+
+            .search-container input {
+                width: 25vw; /* Ajustar el tamaño de la barra de búsqueda */
+            }
+        }
+
+        /* Ajustes para tablets */
+        @media screen and (max-width: 768px) {
+            .movie-poster {
+                width: 30vw; /* Ajustar tamaño de los posters */
+                height: auto; /* Mantener proporción */
+            }
+
+            .search-container input {
+                width: 50vw; /* Ajustar tamaño de la barra de búsqueda */
+            }
+        }
+
+        /* Ajustes para móviles */
+        @media screen and (max-width: 480px) {
+            .movie-poster {
+                width: 40vw; /* Ajustar tamaño de los posters */
+                height: auto; /* Mantener proporción */
+            }
+
+            .search-container input {
+                width: 70vw; /* Ajustar tamaño de la barra de búsqueda */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="contenedor">
+            <h2 class="logotipo">CineManía</h2>
+            <nav>
+                <a href="peliculas.html">Regresar</a>
+            </nav>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar...">
+                <button id="searchButton">Buscar</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <div class="movies-container" id="results" ></div>
+    </div>
+
+    <div class="video-container" id="videoContainer">
+        <span class="close-button" id="closeButton">✖</span>
+        <video id="videoPlayer" controls></video>
+        <iframe id="iframePlayer" sandbox="allow-scripts allow-same-origin" frameborder="0" allow="autoplay; fullscreen"></iframe>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const movies = [
+                { title: "Deadpool 2", poster: "/img/deadpool-2.jpg", video: "peli/Deadpool.2.2018.1080p.unrated-dual-lat-cinecalidad.to.mp4" },
+                { title: "El conjuro 1", poster: "img/pixelcut-export.jpg.jpeg", video: "peli/The.Conjuring.2013.bluray-latino-e-ingles.mp4" },
+                { title: "Bitelchús 2", poster: "img/foto.jpg", video: "https://s2.goodstream.uno/4cd39f3c7afb812a?download_token=de895aac8dc8626165aa9eaa63274245cd3a67ecc33a839463761670d4c1fd64" },
+                { title: "No hables con extraños", poster: "https://www.cuevana.mobi/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FrdGpSGWNnpHuouEJjXOkzbTyRJk.jpg&w=256&q=75", video: "https://drive.google.com/file/d/1Kdok-cLFjbtqz7AjA-HFIS6POcatLgcC/preview" },
+                { title: "Wolfs", poster: "https://www.cuevana.mobi/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FuNNVMzJg7NVqxRu8mDLEwIiQgDJ.jpg&w=256&q=75", video: "https://drive.google.com/file/d/1g15CFOKfO3tX_N5NiG9MJVL8bcd761_3/preview" },
+                { title: "En busca de la felicidad", poster: "https://image.tmdb.org/t/p/w185//qF6JFr6IdfNep0x6yw3i7S8avAb.jpg", video: "https://drive.google.com/file/d/13O44rKLhLdVTvZ5qrc3etE6O-LB5AT63/preview" },
+
+            
+            ];
+
+
+            const resultsContainer = document.getElementById('results');
+
+            function displayMovies(filteredMovies) {
+                resultsContainer.innerHTML = ''; 
+                if (filteredMovies.length > 0) {
+                    filteredMovies.forEach(movie => {
+                        const movieElement = document.createElement('div');
+                        movieElement.innerHTML = `
+                            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onclick="openVideo('${movie.video}')">
+                        `;
+                        resultsContainer.appendChild(movieElement);
+                    });
+                } else {
+                    resultsContainer.textContent = 'No hay resultados';
+                }
+            }
+
+            document.getElementById('searchInput').addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(query));
+                displayMovies(filteredMovies);
+            });
+
+            window.openVideo = function (videoUrl) {
+                const videoPlayer = document.getElementById('videoPlayer');
+                const iframePlayer = document.getElementById('iframePlayer');
+
+                if (videoUrl.startsWith('http')) {
+                    videoPlayer.style.display = 'none';
+                    iframePlayer.style.display = 'block';
+                    iframePlayer.src = videoUrl;
+                } else {
+                    iframePlayer.style.display = 'none';
+                    videoPlayer.style.display = 'block';
+                    videoPlayer.src = videoUrl;
+                }
+
+                document.getElementById('videoContainer').style.display = 'flex';
+            };
+
+            document.getElementById('closeButton').onclick = () => {
+                document.getElementById('videoContainer').style.display = 'none';
+                const videoPlayer = document.getElementById('videoPlayer');
+                const iframePlayer = document.getElementById('iframePlayer');
+                videoPlayer.pause();
+                videoPlayer.src = '';
+                iframePlayer.src = '';
+            };
+        });
+    </script>
+    
+</body>
+</html>

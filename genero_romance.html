@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estilos.css">
+    <title>Género Romance</title>
+    <style>
+        /* Estilos adicionales para las imágenes */
+        .movie-poster {
+            width: 200px; /* Tamaño fijo */
+            height: 300px; /* Tamaño fijo */
+            object-fit: cover; /* Mantiene la proporción */
+            cursor: pointer; /* Cambia el cursor */
+            margin: 10px;
+        }
+        
+        .video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .video-container video,
+        .video-container iframe {
+            width: 80%; /* Ancho relativo */
+            height: calc(80% * 9 / 16); /* Mantiene la proporción 16:9 */
+            display: none; /* Oculto por defecto */
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        body {
+            color: white;
+            background-color: black;
+        }
+        
+        :root {
+            --rojo: #E50914;
+            --fondo: #141414;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--fondo);
+            font-family: 'Open Sans', sans-serif;
+            color: white;
+        }
+
+        .contenedor {
+            width: 90%;
+            margin: auto;
+        }
+
+        header {
+            padding: 30px 0;
+        }
+
+        header .contenedor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logotipo {
+            font-family: 'Bebas Neue', cursive;
+            color: var(--rojo);
+            font-size: 40px;
+        }
+
+        header nav {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        header nav a {
+            color: #AAA;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        header nav a:hover,
+        header nav a.activo {
+            color: #FFF;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            width: 300px;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: var(--rojo);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-container button:hover {
+            background: #FF3D3D; /* Color más claro al pasar el mouse */
+        }
+
+        /* Media Queries */
+        @media screen and (min-width: 1200px) {
+            .movie-poster {
+                width: 12vw; /* Ajustar tamaño de los posters en pantallas grandes */
+                height: auto; /* Mantener proporción */
+            }
+
+            .video-container video,
+            .video-container iframe {
+                width: 70vw; /* Ajustar el tamaño del video en pantallas grandes */
+                height: calc(70vw * 9 / 16); /* Mantener la proporción 16:9 */
+            }
+
+            .logotipo {
+                font-size: 3vw; /* Ajustar el tamaño del logotipo */
+            }
+
+            .search-container input {
+                width: 25vw; /* Ajustar el tamaño de la barra de búsqueda */
+            }
+        }
+
+        /* Ajustes para tablets */
+        @media screen and (max-width: 768px) {
+            .movie-poster {
+                width: 30vw; /* Ajustar tamaño de los posters */
+                height: auto; /* Mantener proporción */
+            }
+
+            .search-container input {
+                width: 50vw; /* Ajustar tamaño de la barra de búsqueda */
+            }
+        }
+
+        /* Ajustes para móviles */
+        @media screen and (max-width: 480px) {
+            .movie-poster {
+                width: 40vw; /* Ajustar tamaño de los posters */
+                height: auto; /* Mantener proporción */
+            }
+
+            .search-container input {
+                width: 70vw; /* Ajustar tamaño de la barra de búsqueda */
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <h1></h1>
+    <div id="movieContainer"></div>
+
+    <div class="video-container" id="videoContainer">
+        <span class="close-button" id="closeButton">✖</span>
+        <video id="videoPlayer" controls></video>
+        <iframe id="iframePlayer" sandbox="allow-scripts allow-same-origin" frameborder="0" allow="autoplay; fullscreen"></iframe>
+    </div>
+
+    <script>
+        // Aquí puedes agregar las películas manualmente
+        const movies = [
+            {
+                name: "deapol 2",
+                poster: "/img/deadpool-2.jpg",
+                video: "peli/Deadpool.2.2018.1080p.unrated-dual-lat-cinecalidad.to.mp4"
+            },
+            {
+                name: "Pelicula 2",
+                poster: "/img/deadpool-2.jpg",
+                video: "ruta/a/video2.mp4"
+            },
+            {
+                name: "Pelicula 3",
+                poster: "ruta/a/poster3.jpg",
+                video: "ruta/a/video3.mp4"
+            }, 
+            {
+                name: "Pelicula 3",
+                poster: "/img/deadpool-2.jpg",
+                video: "ruta/a/video3.mp4"
+            }
+            // Puedes seguir agregando más películas...
+        ];
+    
+        const movieContainer = document.getElementById('movieContainer');
+        
+        // Invertir el orden de las películas para que las nuevas aparezcan primero
+        movies.reverse();
+    
+        // Mostrar todas las películas
+        movies.forEach(movie => {
+            const img = document.createElement('img');
+            img.src = movie.poster;
+            img.className = 'movie-poster';
+            img.onclick = () => openVideo(movie.video);
+            movieContainer.appendChild(img);
+        });
+    
+        function openVideo(videoSrc) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const iframePlayer = document.getElementById('iframePlayer');
+    
+            // Si es un enlace externo (http o https), usa un iframe
+            if (videoSrc.startsWith('http')) {
+                videoPlayer.style.display = 'none'; // Ocultar el reproductor de video
+                iframePlayer.style.display = 'block'; // Mostrar iframe
+                iframePlayer.src = videoSrc; // Asignar la URL al iframe
+            } else {
+                iframePlayer.style.display = 'none'; // Ocultar iframe
+                videoPlayer.style.display = 'block'; // Mostrar el reproductor de video
+                videoPlayer.src = videoSrc; // Asignar la URL al video
+            }
+
+            document.getElementById('videoContainer').style.display = 'flex';
+        }
+
+        document.getElementById('closeButton').onclick = () => {
+            document.getElementById('videoContainer').style.display = 'none';
+            const videoPlayer = document.getElementById('videoPlayer');
+            const iframePlayer = document.getElementById('iframePlayer');
+            videoPlayer.pause();
+            videoPlayer.src = ''; // Limpiar el src al cerrar
+            iframePlayer.src = ''; // Limpiar el src del iframe
+        };
+
+    </script>
+    <script src="/js/verificacion.js"></script>
+    
+</body>
+</html>
